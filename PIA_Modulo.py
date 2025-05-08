@@ -220,7 +220,6 @@ def filtrar_paises_con_regex(datos_estructurados, patron_regex):
 modulo.py - Funciones adicionales para análisis estadístico de datos de países.
 """
 def analizar_estadisticas(datos_estructurados, campo="Población"):
-    # sourcery skip: extract-method
     """
     Calcula y organiza estadísticas descriptivas para un campo numérico específico en una lista de diccionarios.
     
@@ -427,7 +426,6 @@ def graficar_datos(datos, tipo_grafico="barras", titulo="Gráfico", eje_x="X", e
 modulo.py - Funciones para interpretar resultados estadísticos de datos de países.
 """
 def interpretar_resultados(estadisticas, datos_originales=None, campo="Población"):
-    # sourcery skip: merge-list-append
     """
     Interpreta estadísticas descriptivas (media, mediana, moda, varianza) y las relaciona con contexto geográfico/demográfico.
     
@@ -456,20 +454,20 @@ def interpretar_resultados(estadisticas, datos_originales=None, campo="Població
     # Validación inicial: si no hay estadísticas, retornar mensaje informativo
     if not estadisticas:
         return "No hay estadísticas disponibles para interpretar."
-
+    
     interpretacion = []
-
+    
     # Título de sección para organizar resultados
     interpretacion.append(f"## Interpretación de Estadísticas: {estadisticas['Campo']} ##")
-
+    
     # Comparar Media y Mediana para detectar asimetría
     media = estadisticas["Media"]
     mediana = estadisticas["Mediana"]
     diferencia = abs(media - mediana)
-
+    
     # Calcular el umbral del 20% para evaluar asimetría (recomendado en análisis estadístico)
     umbral = 0.2 * max(media, mediana)
-
+    
     if diferencia > umbral:
         # Alta asimetría: media > mediana -> colas positivas (ej.: países muy poblados)
         tendencia = "alta asimetría" if media > mediana else "baja asimetría"
@@ -484,19 +482,19 @@ def interpretar_resultados(estadisticas, datos_originales=None, campo="Població
             "sugiriendo una distribución relativamente simétrica. "
             "Los países tienen tamaños comparables en este campo."
         )
-
+    
     # Moda: valor más frecuente
     moda = estadisticas["Moda"]
     interpretacion.append(
         f"- El valor más frecuente (**moda**) es {moda}, lo cual podría representar un grupo de países con características similares. "
         "Ejemplo: múltiples pequeñas naciones insulares con poblaciones cercanas a 50 millones."
     )
-
+    
     # Varianza y Desviación Estándar: dispersión de datos
     varianza = estadisticas["Varianza"]
     desviacion_std = estadisticas["Desviación Estándar"]
     coeficiente_variacion = desviacion_std / media if media != 0 else float('inf')
-
+    
     # Clasificar dispersión usando el coeficiente de variación (CV)
     # - CV < 0.5: baja dispersión | 0.5 < CV < 1: moderada | CV > 1: alta
     if coeficiente_variacion > 1:
@@ -505,24 +503,25 @@ def interpretar_resultados(estadisticas, datos_originales=None, campo="Població
         dispersión = "dispersión moderada"
     else:
         dispersión = "baja dispersión"
-
+    
     interpretacion.append(
         f"- La **varianza** ({varianza}) y la **desviación estándar** ({desviacion_std}) indican {dispersión} entre los valores. "
         "Esto refleja si los países son homogéneos (baja dispersión) o muy diversos (alta dispersión)."
     )
-
+    
     # Contexto geográfico/demográfico (si se proporcionan datos originales y el campo es población)
     if datos_originales and campo == "Población":
         # Identificar países con máximos y mínimos usando funciones lambda
         pais_max = max(datos_originales, key=lambda x: x.get(campo, 0))
         pais_min = min(datos_originales, key=lambda x: x.get(campo, 0))
-
-        interpretacion.extend(
-            (
-                "\n## Contexto Geográfico/Demográfico ##",
-                f"- El país con mayor {campo} es **{pais_max['Nombre']}** ({pais_max[campo]}).",
-                f"- El país con menor {campo} es **{pais_min['Nombre']}** ({pais_min[campo]}).",
-            )
+        
+        interpretacion.append("\n## Contexto Geográfico/Demográfico ##")
+        interpretacion.append(
+            f"- El país con mayor {campo} es **{pais_max['Nombre']}** ({pais_max[campo]})."
         )
+        interpretacion.append(
+            f"- El país con menor {campo} es **{pais_min['Nombre']}** ({pais_min[campo]})."
+        )
+    
     # Unir todas las líneas de interpretación en un solo texto
     return "\n".join(interpretacion)
